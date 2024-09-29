@@ -1,84 +1,74 @@
-import java.util.ArrayList;
-import java.util.List;
+package org.example;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class App {
 
-    // 1. Calculate Discount
-    public double calculateDiscount(double totalAmount, double discountRate) {
-        if (totalAmount <= 0 || discountRate < 0 || discountRate > 100) {
-            throw new IllegalArgumentException("Invalid amount or discount rate");
-        }
-        return totalAmount * (1 - (discountRate / 100));
+    private Map<String, Integer> productStock = new HashMap<>();
+
+    // Method 1: Add product to stock
+    public void addProduct(String productName, int quantity) {
+        productStock.put(productName, productStock.getOrDefault(productName, 0) + quantity);
     }
 
-    // 2. Apply Tax
-    public double applyTax(double amount, double taxRate) {
-        if (amount < 0 || taxRate < 0) {
-            throw new IllegalArgumentException("Invalid tax rate or amount");
+    // Method 2: Remove product from stock
+    public void removeProduct(String productName, int quantity) {
+        if (productStock.containsKey(productName) && productStock.get(productName) >= quantity) {
+            productStock.put(productName, productStock.get(productName) - quantity);
         }
-        return amount + (amount * taxRate / 100);
     }
 
-    // 3. Process Refund
-    public String processRefund(int orderId, double refundAmount) {
-        if (orderId <= 0 || refundAmount <= 0) {
-            return "Invalid refund request";
-        }
-        return "Refund of $" + refundAmount + " processed for Order ID: " + orderId;
+    // Method 3: Get stock of a product
+    public int getProductStock(String productName) {
+        return productStock.getOrDefault(productName, 0);
     }
 
-    // 4. Add Customer
-    public String addCustomer(String name, String email) {
-        if (name == null || email == null) {
-            return "Invalid customer details";
-        }
-        return "Customer added: " + name;
+    // Method 4: Check if product is in stock
+    public boolean isProductInStock(String productName) {
+        return productStock.containsKey(productName) && productStock.get(productName) > 0;
     }
 
-    // 5. Generate Invoice
-    public String generateInvoice(int orderId, double totalAmount) {
-        if (orderId <= 0 || totalAmount <= 0) {
-            return "Invalid invoice data";
-        }
-        return "Invoice generated for Order ID: " + orderId + " with total $" + totalAmount;
+    // Method 5: Discount calculation (vulnerable method: no validation on discount percent)
+    public double calculateDiscount(double price, double discountPercent) {
+        return price - (price * (discountPercent / 100));
     }
 
-    // 6. Check Stock
-    public boolean checkStock(String productName, int quantity) {
-        // Simulating a stock check
-        return quantity > 0;
+    // Method 6: Calculate total price of products
+    public double calculateTotalPrice(Map<String, Integer> products, double pricePerUnit) {
+        int totalQuantity = products.values().stream().reduce(0, Integer::sum);
+        return totalQuantity * pricePerUnit;
     }
 
-    // 7. Track Shipment
-    public String trackShipment(int trackingId) {
-        if (trackingId <= 0) {
-            return "Invalid tracking ID";
-        }
-        return "Tracking info for ID: " + trackingId;
+    // Method 7: Calculate average price of products
+    public double calculateAveragePrice(Map<String, Double> productPrices) {
+        return productPrices.values().stream().mapToDouble(Double::doubleValue).average().orElse(0);
     }
 
-    // 8. Apply Promo Code
-    public double applyPromoCode(double totalAmount, String promoCode) {
-        if (promoCode.equals("DISCOUNT10")) {
-            return totalAmount * 0.9;  // 10% discount
+    // Method 8: Restock product if below threshold
+    public void restockProduct(String productName, int threshold, int restockAmount) {
+        if (productStock.getOrDefault(productName, 0) < threshold) {
+            productStock.put(productName, productStock.getOrDefault(productName, 0) + restockAmount);
         }
-        return totalAmount;
     }
 
-    // 9. Add Items to Cart
-    public List<String> addItemsToCart(List<String> cart, String item) {
-        if (item != null && !item.isEmpty()) {
-            cart.add(item);
-        }
-        return cart;
+    // Method 9: Clear all stock
+    public void clearStock() {
+        productStock.clear();
     }
 
-    // 10. VULNERABLE: Unsafe Admin Login
-    public boolean adminLogin(String username, String password) {
-        // Security vulnerability: Hardcoded credentials and no encryption
-        if (username.equals("admin") && password.equals("password123")) {
-            return true;
-        }
-        return false;
+    // Method 10: Check stock level and alert if too low
+    public String checkStockLevel(String productName, int alertThreshold) {
+        int stock = productStock.getOrDefault(productName, 0);
+        return stock < alertThreshold ? "Alert: Stock is low!" : "Stock is sufficient";
+    }
+
+    // Vulnerable code (SQL Injection risk)
+    public String vulnerableLogin(String username, String password) {
+        // Directly concatenating input into SQL query (dangerous!)
+        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
+        System.out.println("Executing query: " + query);
+        // Simulate query execution
+        return "Login query executed.";
     }
 }
