@@ -34,11 +34,11 @@ jobs:
         run: ./gradlew test jacocoTestReport
 
       - name: Static Code Scan
-        uses: staticcode/scan-github-action@v3.0.0
+        uses: sonarsource/sonarcloud-github-action@v3.0.0
         with:
           projectBaseDir: '.'
         env:
-          SCAN_TOKEN: ${{ secrets.SCAN_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Upload Coverage HTML report
         uses: actions/upload-artifact@v3
